@@ -8,6 +8,14 @@ on:
 jobs:
   qualidade:
     runs-on: ubuntu-latest
+
+    # POSTGRES_PASSWORD não tem default na Settings (ADR-002, secao 2.3) — sem
+    # ele qualquer import de app.core.config falha, então vale para todos os steps.
+    env:
+      POSTGRES_USER: creed
+      POSTGRES_PASSWORD: creed
+      POSTGRES_DB: creed_test
+
     services:
       postgres:
         image: postgres:16
@@ -46,10 +54,6 @@ jobs:
             echo "::error::Múltiplas heads do Alembic. Use 'alembic merge' (ADR-002, 2.4.c)."
             exit 1
           fi
-        env:
-          POSTGRES_DB: creed_test
 
       - name: Pytest
         run: pytest
-        env:
-          POSTGRES_DB: creed_test

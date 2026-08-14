@@ -3,6 +3,7 @@
 Arquitetura registrada nos ADRs 001 (stack) e 002 (organização interna).
 """
 
+from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
@@ -18,7 +19,7 @@ from app.domains.respondentes.router import router as respondentes_router
 
 
 @asynccontextmanager
-async def lifespan(app: FastAPI):  # noqa: ANN201, ARG001
+async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     """Ciclo de vida da aplicação.
 
     NOTA (ADR-002, secao 2.4.d): migrations NÃO rodam aqui. No EKS, múltiplos

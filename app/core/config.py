@@ -29,7 +29,9 @@ class Settings(BaseSettings):
     POSTGRES_HOST: str = "localhost"
     POSTGRES_PORT: int = 5432
     POSTGRES_USER: str = "creed"
-    POSTGRES_PASSWORD: str = "creed"
+    # Sem default de propósito: a aplicação deve falhar no boot se o Secret não
+    # chegar, em vez de subir silenciosamente com uma senha conhecida.
+    POSTGRES_PASSWORD: str
     POSTGRES_DB: str = "creed"
 
     # --- Esteira de IA (N8N self-hosted, ADR-001 secao 2.1) ---

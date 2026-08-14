@@ -1,1 +1,4 @@
-"""Schemas Pydantic do domínio organizacoes — separados por direção (Create/Update/Response)."""
+"""Schemas Pydantic do domínio organizacoes.
+
+Separados por direção (ADR-002, secao 2.3): entrada e saída não se contaminam.
+"""

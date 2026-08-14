@@ -9,6 +9,7 @@ import uuid
 from fastapi import APIRouter, HTTPException, Query, status
 
 from app.domains.respondentes.dependencies import ServiceDep
+from app.domains.respondentes.models import Respondente
 from app.domains.respondentes.schemas import (
     RespondenteCreate,
     RespondenteListResponse,
@@ -21,7 +22,7 @@ from app.shared.exceptions import ConflictError, NotFoundError
 router = APIRouter(prefix="/respondentes", tags=["respondentes"])
 
 
-def _to_response(respondente) -> RespondenteResponse:  # noqa: ANN001
+def _to_response(respondente: Respondente) -> RespondenteResponse:
     resposta = RespondenteResponse.model_validate(respondente)
     resposta.idade = calcular_idade(respondente.data_nascimento)
     return resposta

@@ -55,6 +55,11 @@ select = [
 ]
 ignore = ["ANN401"]
 
+[tool.ruff.lint.isort]
+# `alembic` é a biblioteca de terceiros, não o diretório de migrations homônimo
+# na raiz — sem isto o isort o trata como pacote local e reordena errado.
+known-third-party = ["alembic"]
+
 [tool.ruff.lint.per-file-ignores]
 "tests/*" = ["S101", "ANN"]        # assert é esperado em teste
 "alembic/versions/*" = ["ANN", "E501"]
