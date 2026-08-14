@@ -1,0 +1,43 @@
+# Espelha este repositório no GitLab da AGES (tools.ages.pucrs.br).
+#
+# O GitHub é a fonte da verdade: o que existe aqui sobrescreve o que existe lá,
+# e branches/tags apagadas aqui somem lá. Não faça commits direto no GitLab —
+# eles serão descartados no próximo espelhamento.
+name: Espelhar no GitLab
+
+on:
+  push:
+    branches: ['**']
+    tags: ['**']
+  delete:
+  workflow_dispatch:
+
+# Dois espelhamentos simultâneos brigariam pelo mesmo remoto.
+concurrency:
+  group: espelho-gitlab
+
+jobs:
+  espelhar:
+    runs-on: ubuntu-latest
+    # Enquanto GITLAB_REPO não estiver cadastrada o job é pulado em vez de
+    # falhar — o repositório não fica com CI vermelho durante a configuração.
+    if: vars.GITLAB_REPO != ''
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # Obrigatório: um clone raso (o padrão) não pode ser empurrado.
+          fetch-depth: 0
+
+      - name: Enviar branches e tags
+        env:
+          GITLAB_TOKEN: ${{ secrets.GITLAB_TOKEN }}
+          GITLAB_USER: ${{ vars.GITLAB_USER || 'oauth2' }}
+          GITLAB_REPO: ${{ vars.GITLAB_REPO }}
+        run: |
+          # Sem --force de propósito: se os históricos divergirem o job falha e
+          # você fica sabendo, em vez de destruir o outro lado silenciosamente.
+          git push --prune \
+            "https://${GITLAB_USER}:${GITLAB_TOKEN}@${GITLAB_REPO}" \
+            "+refs/remotes/origin/*:refs/heads/*" \
+            "+refs/tags/*:refs/tags/*"
