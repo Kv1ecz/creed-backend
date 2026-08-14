@@ -1,0 +1,33 @@
+# Desenvolvimento local. Em produção o banco é RDS gerenciado (ADR-001).
+services:
+  db:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: creed
+      POSTGRES_PASSWORD: creed
+      POSTGRES_DB: creed
+    ports: ['5432:5432']
+    volumes: [pgdata:/var/lib/postgresql/data]
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U creed']
+      interval: 10s
+      retries: 5
+
+  n8n:
+    image: n8nio/n8n:latest
+    environment:
+      DB_TYPE: postgresdb
+      DB_POSTGRESDB_HOST: db
+      DB_POSTGRESDB_DATABASE: creed
+      DB_POSTGRESDB_USER: creed
+      DB_POSTGRESDB_PASSWORD: creed
+      DB_POSTGRESDB_SCHEMA: n8n
+      N8N_SECURE_COOKIE: 'false'
+    ports: ['5678:5678']
+    volumes: [n8ndata:/home/node/.n8n]
+    depends_on:
+      db: {condition: service_healthy}
+
+volumes:
+  pgdata:
+  n8ndata:

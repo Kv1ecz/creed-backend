@@ -1,0 +1,55 @@
+name: CI Back-end
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+
+jobs:
+  qualidade:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: creed
+          POSTGRES_PASSWORD: creed
+          POSTGRES_DB: creed_test
+        options: >-
+          --health-cmd pg_isready --health-interval 10s
+          --health-timeout 5s --health-retries 5
+        ports: ['5432:5432']
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+
+      - run: pip install -e ".[dev]"
+
+      - name: Ruff (lint)
+        run: ruff check .
+
+      - name: Ruff (formatação)
+        run: ruff format --check .
+
+      - name: Mypy (tipos, strict)
+        run: mypy app
+
+      - name: Alembic — checar heads únicas
+        run: |
+          HEADS=$(alembic heads | wc -l)
+          if [ "$HEADS" -gt 1 ]; then
+            echo "::error::Múltiplas heads do Alembic. Use 'alembic merge' (ADR-002, 2.4.c)."
+            exit 1
+          fi
+        env:
+          POSTGRES_DB: creed_test
+
+      - name: Pytest
+        run: pytest
+        env:
+          POSTGRES_DB: creed_test
