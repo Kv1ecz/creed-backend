@@ -27,8 +27,11 @@ Organização **por domínio** (ADR-002, secao 2.1). Cada domínio em
 python -m venv .venv && source .venv/bin/activate
 pip install -e ".[dev]"
 cp .env.example .env
-pre-commit install
+pre-commit install --hook-type pre-commit --hook-type pre-push
 ```
+
+O `--hook-type pre-push` instala a verificação do nome da branch
+([cartilha](CONTRIBUTING.md)); sem ele, o erro só aparece no PR.
 
 Subir o banco e aplicar migrations:
 

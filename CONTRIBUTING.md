@@ -75,8 +75,14 @@ Bons e maus exemplos:
 ❌ minha-branch                 sem slug
 ```
 
-🔒 Branch fora do padrão é **recusada no push**, com a mensagem
-`Branch name does not match the required pattern`. Renomeie e empurre de novo:
+O padrão é cobrado em dois momentos:
+
+1. **no seu `git push`**, por um hook local que recusa a branch antes de subir.
+   É conveniência — `--no-verify` passa por cima;
+2. 🔒 **no PR**, pelo check obrigatório `nome-da-branch`. Esse não tem escape:
+   sem ele verde, o PR não mergeia.
+
+Se cair em qualquer um dos dois, renomeie e empurre de novo:
 
 ```bash
 git branch -m feat/1-criar-usuarios
@@ -149,12 +155,17 @@ Revisar é parte do trabalho, não favor. Ao revisar:
 
 ## Resumo do que é automático
 
-| Regra | `main` | `dev` | outras |
-| --- | --- | --- | --- |
-| Push direto bloqueado | 🔒 | 🔒 | — |
-| Não pode ser apagada | 🔒 | 🔒 | — |
-| Force push bloqueado | 🔒 | 🔒 | — |
-| PR com 1 aprovação | 🔒 | 🔒 | — |
-| CI `qualidade` verde | 🔒 | 🔒 | — |
-| Conversas resolvidas | 🔒 | 🔒 | — |
-| Nome no padrão | — | — | 🔒 |
+| Regra | `main` | `dev` | outras | Onde é aplicada |
+| --- | --- | --- | --- | --- |
+| Push direto bloqueado | 🔒 | 🔒 | — | ruleset |
+| Não pode ser apagada | 🔒 | 🔒 | — | ruleset |
+| Force push bloqueado | 🔒 | 🔒 | — | ruleset |
+| PR com 1 aprovação | 🔒 | 🔒 | — | ruleset |
+| Conversas resolvidas | 🔒 | 🔒 | — | ruleset |
+| CI `qualidade` verde | 🔒 | 🔒 | — | check obrigatório |
+| Nome no padrão | — | — | 🔒 | check obrigatório + hook local |
+
+Enquanto o time não estiver todo no repositório, quem tem **admin** consegue
+mergear sem a aprovação — é o que evita travar tudo, já que o GitHub não
+deixa ninguém aprovar o próprio PR. Assim que houver mais gente, esse bypass
+deve ser removido do ruleset.

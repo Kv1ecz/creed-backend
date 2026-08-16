@@ -1,0 +1,51 @@
+# Padrão de nome de branch (CONTRIBUTING.md).
+#
+# O GitHub não bloqueia mais nome de branch por ruleset — as metadata
+# restrictions saíram das regras disponíveis —, então a cobrança acontece
+# aqui, como check obrigatório do PR. O hook de pre-push avisa antes, mas
+# pode ser contornado com --no-verify; este check não.
+name: Nome da branch
+
+on:
+  pull_request:
+
+jobs:
+  nome-da-branch:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Validar o nome da branch de origem
+        env:
+          # Via env, não interpolado direto no script: nome de branch é
+          # conteúdo controlado por quem abre o PR.
+          BRANCH: ${{ github.head_ref }}
+        run: |
+          # dev -> main é o PR de release: a origem é branch permanente.
+          if [ "$BRANCH" = "dev" ] || [ "$BRANCH" = "main" ]; then
+            echo "Branch permanente ($BRANCH) — nada a validar."
+            exit 0
+          fi
+
+          PADRAO='^(feat|fix|refactor|perf|test|docs|style|chore|ci|build|hotfix|release)/[a-z0-9]*[0-9][a-z0-9]*-[a-z][a-z0-9]*(-[a-z0-9]+)*$'
+
+          if printf '%s' "$BRANCH" | grep -Eq "$PADRAO"; then
+            echo "Nome da branch OK: $BRANCH"
+            exit 0
+          fi
+
+          echo "::error::Nome de branch fora do padrão: $BRANCH"
+          cat <<'AJUDA'
+
+          Esperado: <slug>/<id-clickup>-<contexto>
+          Exemplo:  feat/1-criar-usuarios
+
+          Slugs: feat fix refactor perf test docs style chore ci build hotfix release
+          O ID precisa ter pelo menos um dígito; tudo em minúsculas, sem acento.
+
+          Para corrigir:
+            git branch -m feat/1-criar-usuarios
+            git push -u origin feat/1-criar-usuarios
+
+          E aponte este PR para a branch nova (ou abra outro).
+          Detalhes em CONTRIBUTING.md.
+          AJUDA
+          exit 1
