@@ -42,7 +42,7 @@ git checkout -b feat/1-criar-usuarios
 | Parte | O que é | Regra |
 | --- | --- | --- |
 | `feat` | slug do tipo de trabalho | um da tabela abaixo |
-| `1` | ID da tarefa no ClickUp | só números e letras minúsculas |
+| `1` | ID da tarefa no ClickUp | números e letras minúsculas, com **pelo menos um dígito** |
 | `criar-usuarios` | contexto em 2–4 palavras | minúsculas, sem acento, separado por hífen |
 
 ### Slugs
