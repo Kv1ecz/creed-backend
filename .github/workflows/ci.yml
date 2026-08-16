@@ -1,8 +1,10 @@
 name: CI Back-end
 
 on:
+  # As duas branches permanentes: dev é o alvo dos PRs de tarefa, main recebe
+  # o merge de release. `pull_request` sem filtro cobre PR para qualquer alvo.
   push:
-    branches: [main, develop]
+    branches: [main, dev]
   pull_request:
 
 jobs:

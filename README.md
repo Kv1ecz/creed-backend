@@ -3,6 +3,9 @@
 API em FastAPI. Decisões registradas nos **ADR-001** (stack) e **ADR-002**
 (organização interna e migrations).
 
+Antes do primeiro PR, leia a [cartilha de contribuição](CONTRIBUTING.md) —
+fluxo de branches, padrão de nome e de commit.
+
 ## Estrutura
 
 Organização **por domínio** (ADR-002, secao 2.1). Cada domínio em
