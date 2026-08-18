@@ -50,12 +50,15 @@ jobs:
           DESTINO="${DESTINO#http://}"
           USUARIO="${GITLAB_USER#@}"
 
-          # Sem '+' nos refspecs (isto é, sem force): o GitLab da AGES protege
-          # as branches do projeto e recusa force push — com '+' ele rejeita
-          # até a criação de branch nova. Efeito colateral bem-vindo: se os
-          # históricos divergirem o job falha e você fica sabendo, em vez de
-          # destruir o outro lado silenciosamente.
+          # O '+' nos refspecs é force por ref, e é intencional: o GitHub é a
+          # fonte da verdade e o GitLab é espelho descartável, então o que
+          # divergir lá é sobrescrito daqui.
+          #
+          # Requisito do outro lado: a branch no GitLab não pode estar
+          # protegida contra force push. Se estiver, o pre-receive recusa o
+          # push INTEIRO — inclusive a criação de branches novas, que nada têm
+          # a ver com a regra — e o job falha com "not allowed to force push".
           git push --prune \
             "https://${USUARIO}:${GITLAB_TOKEN}@${DESTINO}" \
-            "refs/remotes/origin/*:refs/heads/*" \
-            "refs/tags/*:refs/tags/*"
+            "+refs/remotes/origin/*:refs/heads/*" \
+            "+refs/tags/*:refs/tags/*"
