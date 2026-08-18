@@ -23,3 +23,15 @@ repos:
       - id: mypy
         additional_dependencies: [pydantic, pydantic-settings, sqlalchemy]
         args: [--strict]
+
+  - repo: local
+    hooks:
+      # Só no push: o nome da branch não muda a cada commit, e travar o
+      # commit por causa dele atrapalharia mais do que ajuda.
+      - id: nome-da-branch
+        name: nome da branch no padrao do CONTRIBUTING
+        entry: scripts/verificar-nome-da-branch.sh
+        language: script
+        stages: [pre-push]
+        pass_filenames: false
+        always_run: true
