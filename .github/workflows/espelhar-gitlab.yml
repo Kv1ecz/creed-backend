@@ -19,9 +19,9 @@ concurrency:
 jobs:
   espelhar:
     runs-on: ubuntu-latest
-    # Enquanto GITLAB_REPO não estiver cadastrada o job é pulado em vez de
-    # falhar — o repositório não fica com CI vermelho durante a configuração.
-    if: vars.GITLAB_REPO != ''
+    # As credenciais moram na Environment GITLAB_MIRROR. Sem esta linha o job
+    # não enxerga GITLAB_TOKEN/GITLAB_REPO/GITLAB_USER.
+    environment: GITLAB_MIRROR
 
     steps:
       - uses: actions/checkout@v4
@@ -35,9 +35,24 @@ jobs:
           GITLAB_USER: ${{ vars.GITLAB_USER || 'oauth2' }}
           GITLAB_REPO: ${{ vars.GITLAB_REPO }}
         run: |
-          # Sem --force de propósito: se os históricos divergirem o job falha e
-          # você fica sabendo, em vez de destruir o outro lado silenciosamente.
+          # A guarda vive aqui, e não em `jobs.<id>.if`: variável de Environment
+          # só existe depois que o job começa a rodar, então `vars.GITLAB_REPO`
+          # na condição do job seria sempre vazia e o espelhamento ficaria
+          # eternamente "skipped".
+          if [ -z "$GITLAB_REPO" ]; then
+            echo "GITLAB_REPO não configurada na Environment GITLAB_MIRROR — nada a espelhar."
+            exit 0
+          fi
+
+          # Aceita tanto "host/grupo/repo.git" quanto a URL inteira colada do
+          # GitLab; o esquema é remontado abaixo junto com as credenciais.
+          DESTINO="${GITLAB_REPO#https://}"
+          DESTINO="${DESTINO#http://}"
+          USUARIO="${GITLAB_USER#@}"
+
+          # Os refspecs levam '+' (força, por ref) de propósito: o GitLab é um
+          # espelho descartável, então o que divergir lá é sobrescrito daqui.
           git push --prune \
-            "https://${GITLAB_USER}:${GITLAB_TOKEN}@${GITLAB_REPO}" \
+            "https://${USUARIO}:${GITLAB_TOKEN}@${DESTINO}" \
             "+refs/remotes/origin/*:refs/heads/*" \
             "+refs/tags/*:refs/tags/*"
