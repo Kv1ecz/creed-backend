@@ -50,9 +50,12 @@ jobs:
           DESTINO="${DESTINO#http://}"
           USUARIO="${GITLAB_USER#@}"
 
-          # Os refspecs levam '+' (força, por ref) de propósito: o GitLab é um
-          # espelho descartável, então o que divergir lá é sobrescrito daqui.
+          # Sem '+' nos refspecs (isto é, sem force): o GitLab da AGES protege
+          # as branches do projeto e recusa force push — com '+' ele rejeita
+          # até a criação de branch nova. Efeito colateral bem-vindo: se os
+          # históricos divergirem o job falha e você fica sabendo, em vez de
+          # destruir o outro lado silenciosamente.
           git push --prune \
             "https://${USUARIO}:${GITLAB_TOKEN}@${DESTINO}" \
-            "+refs/remotes/origin/*:refs/heads/*" \
-            "+refs/tags/*:refs/tags/*"
+            "refs/remotes/origin/*:refs/heads/*" \
+            "refs/tags/*:refs/tags/*"
